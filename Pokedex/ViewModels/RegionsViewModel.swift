@@ -6,7 +6,7 @@
 //
 
 
-import Foundation
+import SwiftUI
 import Combine
 
 @MainActor
@@ -21,7 +21,7 @@ final class RegionsViewModel: ObservableObject {
         do {
             regions = try await PokeAPIService.shared.fetchRegions()
         } catch {
-            print(error)
+            print("ERROR loading regions:", error)
         }
     }
 }

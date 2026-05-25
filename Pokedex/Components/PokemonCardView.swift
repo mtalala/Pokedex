@@ -5,27 +5,46 @@
 //  Created by mtalala on 5/19/26.
 //
 
-
 import SwiftUI
 
 struct PokemonCardView: View {
-    let pokemon: Pokemon
-    let captured: Bool
+
+    let pokemonName: String?
+    let index: Int?
+    let isLoading: Bool
 
     var body: some View {
-        VStack {
-            AsyncImage(url: pokemon.imageURL)
-                .frame(width: 80, height: 80)
+        VStack(spacing: 8) {
 
-            Text(pokemon.name)
-                .font(.caption)
+            ZStack {
+                if isLoading {
+                    SkeletonRectangle()
+                        .frame(width: 80, height: 80)
+                } else if let index {
+                    AsyncImage(
+                        url: URL(
+                            string:
+                                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(index).png"
+                        )
+                    ) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    } placeholder: {
+                        SkeletonRectangle()
+                    }
+                    .frame(width: 80, height: 80)
+                }
+            }
 
-            if captured {
-                Image(systemName: "checkmark.seal.fill")
+            if isLoading {
+                SkeletonRectangle()
+                    .frame(width: 60, height: 10)
+            } else if let pokemonName {
+                Text(pokemonName.capitalized)
+                    .font(.caption)
+                    .lineLimit(1)
             }
         }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

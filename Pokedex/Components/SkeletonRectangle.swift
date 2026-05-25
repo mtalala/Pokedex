@@ -1,3 +1,11 @@
+//
+//  SkeletonRectangle.swift
+//  Pokedex
+//
+//  Created by mtalala on 5/21/26.
+//
+
+
 import SwiftUI
 
 struct SkeletonRectangle: View {

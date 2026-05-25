@@ -5,6 +5,8 @@
 //  Created by mtalala on 5/19/26.
 //
 
+import Combine
+import SwiftUI
 
 @MainActor
 final class PokemonListViewModel: ObservableObject {

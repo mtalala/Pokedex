@@ -5,23 +5,38 @@
 //  Created by mtalala on 5/19/26.
 //
 
-
 import Foundation
 import Combine
 
 @MainActor
 final class RegionPokemonViewModel: ObservableObject {
-    @Published var pokemons: [Pokemon] = []
+
+    @Published var pokemons: [PokemonEntry] = []
+    @Published var regions: [Region] = []
     @Published var isLoading = false
 
-    func load(regionID: Int) async {
+    func load(regionName: String) async {
         isLoading = true
-        defer { isLoading = false }
+
+        pokemons = Array(repeating: .placeholder, count: 12)
 
         do {
-            pokemons = try await PokeAPIService.shared.fetchPokemonByRegion(regionID: regionID)
+            let result = try await PokeAPIService.shared.fetchPokemonsByRegion(regionName: regionName)
+            pokemons = result
         } catch {
-            print(error)
+            print("Pokemons error:", error)
+        }
+
+        isLoading = false
+    }
+
+    func loadRegionsIfNeeded() async {
+        if !regions.isEmpty { return }
+
+        do {
+            regions = try await PokeAPIService.shared.fetchRegions()
+        } catch {
+            print("Regions error:", error)
         }
     }
 }

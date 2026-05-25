@@ -2,6 +2,14 @@
 //  RegionsView.swift
 //  Pokedex
 //
+//  Created by mtalala on 5/25/26.
+//
+
+
+//
+//  RegionsView.swift
+//  Pokedex
+//
 //  Created by mtalala on 5/19/26.
 //
 
@@ -21,7 +29,7 @@ struct RegionsView: View {
                 NavigationLink {
                     RegionPokemonView(region: region)
                 } label: {
-                    Text(region.name)
+                    Text(region.name.capitalized)
                 }
             }
         }

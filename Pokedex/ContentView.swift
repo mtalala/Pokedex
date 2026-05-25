@@ -6,19 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        RegionPokemonView(region: .init(name: "kanto", url: "https://pokeapi.co/api/v2/region/1/"))
     }
 }
-
 #Preview {
-    ContentView()
+    NavigationStack {
+        ContentView()
+    }
+    .modelContainer(for: CapturedPokemon.self, inMemory: true)
 }

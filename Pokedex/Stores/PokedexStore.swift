@@ -6,18 +6,18 @@
 //
 
 
-import Foundation
+import SwiftUI
 import Observation
 
 @Observable
 final class PokedexStore {
-    private(set) var captured: Set<Int> = []
+    var captured: Set<Pokemon> = []
 
-    func capture(pokemonID: Int) {
-        captured.insert(pokemonID)
+    func capture(_ pokemon: Pokemon) {
+        captured.insert(pokemon)
     }
 
-    func isCaptured(_ pokemonID: Int) -> Bool {
-        captured.contains(pokemonID)
+    func isCaptured(_ pokemon: Pokemon) -> Bool {
+        captured.contains(pokemon)
     }
 }

@@ -5,38 +5,115 @@
 //  Created by mtalala on 5/19/26.
 //
 
-
 import SwiftUI
+import SwiftData
 
 struct PokemonDetailView: View {
-    let pokemon: Pokemon
+
+    let pokemonName: String
 
     @StateObject private var vm = PokemonDetailViewModel()
-    @Environment(PokedexStore.self) private var pokedex
+    @Environment(\.modelContext) private var context
+    @Query private var captured: [CapturedPokemon]
+
+    @State private var showCapture = false
+    @State private var pending: PokemonDetail?
+
+    private var capturedSet: Set<Int> {
+        Set(captured.map { $0.id })
+    }
 
     var body: some View {
-        VStack(spacing: 16) {
-            AsyncImage(url: pokemon.imageURL)
+        ScrollView {
 
-            Text(pokemon.name)
-                .font(.title)
+            if vm.isLoading || vm.detail == nil {
+                skeletonContent
+            } else if let detail = vm.detail {
+                content(detail)
+            }
+        }
+        .navigationTitle(vm.detail?.name.capitalized ?? pokemonName.capitalized)
+        .task {
+            await vm.load(name: pokemonName)
+        }
+        .fullScreenCover(isPresented: $showCapture) {
+            CaptureView {
+                if let detail = pending {
+                    capture(detail)
+                }
 
-            if let detail = vm.detail {
+                pending = nil
+                showCapture = false
+            }
+        }
+    }
+
+    private func content(_ detail: PokemonDetail) -> some View {
+
+        let isCaptured = capturedSet.contains(detail.id)
+
+        return VStack(spacing: 20) {
+
+            AsyncImage(
+                url: URL(string: detail.sprites?.other?.officialArtwork?.frontDefault ?? "")
+            ) { image in
+                image.resizable().scaledToFit()
+            } placeholder: {
+                ProgressView()
+            }
+            .frame(width: 200, height: 200)
+
+            Text("#\(detail.id)")
+                .foregroundColor(.secondary)
+
+            HStack {
+                ForEach(detail.types, id: \.slot) { t in
+                    Text(t.type.name.capitalized)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(.gray.opacity(0.2))
+                        .cornerRadius(10)
+                }
+            }
+
+            VStack(alignment: .leading) {
                 Text("Height: \(detail.height)")
                 Text("Weight: \(detail.weight)")
-                Text("Types: \(detail.types.map { $0.type.name }.joined(separator: ", "))")
             }
 
-            Button {
-                pokedex.capture(pokemonID: pokemon.id)
-            } label: {
-                Text(pokedex.isCaptured(pokemon.id) ? "Captured" : "Capture")
+            Button(isCaptured ? "Captured" : "Capture") {
+                pending = detail
+                showCapture = true
             }
-            .disabled(pokedex.isCaptured(pokemon.id))
+            .buttonStyle(.borderedProminent)
+            .disabled(isCaptured)
         }
         .padding()
-        .task {
-            await vm.load(id: pokemon.id)
+    }
+
+    private var skeletonContent: some View {
+        ProgressView()
+            .padding()
+    }
+
+    private func capture(_ detail: PokemonDetail) {
+
+        let new = CapturedPokemon(
+            name: detail.name, id: detail.id,
+            imageURL: detail.sprites?.other?.officialArtwork?.frontDefault ?? ""
+        )
+
+        print("INSERTING:", new.id, new.name)
+
+        context.insert(new)
+
+        DispatchQueue.main.async {
+            do {
+                try context.save()
+                print("SAVE OK")
+            } catch {
+                print("SAVE FAILED:", error)
+            }
         }
     }
 }
