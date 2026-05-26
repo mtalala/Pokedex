@@ -145,9 +145,9 @@ struct PokemonDetailView: View {
         return artwork?.frontDefault ?? ""
     }
 
-    /// Escolhe a sprite frontal para a tela de captura.
+    /// Escolhe a arte oficial para a tela de captura.
     private func captureSpriteURL(for detail: PokemonDetail) -> String {
-        detail.sprites?.front_default ?? detail.sprites?.other?.officialArtwork?.frontDefault ?? ""
+        detail.sprites?.other?.officialArtwork?.frontDefault ?? detail.sprites?.front_default ?? ""
     }
 
     /// Retorna uma cor representativa para cada tipo elemental.
