@@ -14,12 +14,12 @@ import SwiftData
 struct ContentView: View {
     /// Conteúdo visual inicial do app.
     var body: some View {
-        RegionPokemonView(region: .init(name: "kanto", url: "https://pokeapi.co/api/v2/region/1/"))
+        NavigationStack {
+            RegionPokemonView(region: .init(name: "kanto", url: "https://pokeapi.co/api/v2/region/1/"))
+        }
     }
 }
 #Preview {
-    NavigationStack {
-        ContentView()
-    }
-    .modelContainer(for: CapturedPokemon.self, inMemory: true)
+    ContentView()
+        .modelContainer(for: CapturedPokemon.self, inMemory: true)
 }
