@@ -8,22 +8,38 @@
 import SwiftUI
 import SwiftData
 
+/// Tela de detalhes de um Pokémon selecionado.
+///
+/// A view apresenta informações completas, permite alternar para a imagem shiny e inicia o fluxo de captura.
 struct PokemonDetailView: View {
 
+    /// Nome usado para buscar os detalhes do Pokémon na PokeAPI.
     let pokemonName: String
 
+    /// View model que carrega os dados detalhados.
     @StateObject private var vm = PokemonDetailViewModel()
+
+    /// Contexto SwiftData usado para salvar capturas.
     @Environment(\.modelContext) private var context
+
+    /// Pokémon capturados persistidos localmente.
     @Query private var captured: [CapturedPokemon]
 
+    /// Controla a apresentação da tela de captura.
     @State private var showCapture = false
+
+    /// Pokémon aguardando confirmação de captura.
     @State private var pending: PokemonDetail?
+
+    /// Controla se a imagem exibida deve ser a versão shiny.
     @State private var showsShinySprite = false
 
+    /// Conjunto de identificadores já capturados, usado para evitar capturas duplicadas.
     private var capturedSet: Set<Int> {
         Set(captured.map { $0.id })
     }
 
+    /// Conteúdo visual da ficha do Pokémon.
     var body: some View {
         ScrollView {
 
@@ -49,6 +65,7 @@ struct PokemonDetailView: View {
         }
     }
 
+    /// Monta o conteúdo principal quando os detalhes do Pokémon já foram carregados.
     private func content(_ detail: PokemonDetail) -> some View {
 
         let isCaptured = capturedSet.contains(detail.id)
@@ -99,11 +116,13 @@ struct PokemonDetailView: View {
         .padding()
     }
 
+    /// Conteúdo temporário apresentado enquanto os detalhes estão carregando.
     private var skeletonContent: some View {
         ProgressView()
             .padding()
     }
 
+    /// Escolhe a URL da imagem normal ou shiny de acordo com o estado da view.
     private func spriteURL(for detail: PokemonDetail) -> String {
         let artwork = detail.sprites?.other?.officialArtwork
 
@@ -114,6 +133,7 @@ struct PokemonDetailView: View {
         return artwork?.frontDefault ?? ""
     }
 
+    /// Salva o Pokémon capturado no armazenamento local com SwiftData.
     private func capture(_ detail: PokemonDetail) {
 
         let new = CapturedPokemon(

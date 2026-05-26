@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FDE714C52FC6009100EFC448 /* Documentation.docc in Sources */ = {isa = PBXBuildFile; fileRef = FDE714C42FC6009100EFC448 /* Documentation.docc */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		FDD71F4D2FBCAAB400820BAD /* Pokedex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pokedex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FDE714C42FC6009100EFC448 /* Documentation.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = Documentation.docc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		FDD71F442FBCAAB400820BAD = {
 			isa = PBXGroup;
 			children = (
+				FDE714C42FC6009100EFC448 /* Documentation.docc */,
 				FDD71F4F2FBCAAB400820BAD /* Pokedex */,
 				FDD71F4E2FBCAAB400820BAD /* Products */,
 			);
@@ -119,6 +125,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FDE714C52FC6009100EFC448 /* Documentation.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

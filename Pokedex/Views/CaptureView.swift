@@ -7,21 +7,38 @@
 
 import SwiftUI
 
+/// Tela interativa que simula a captura de um Pokémon.
+///
+/// O usuário arrasta a Poké Ball para confirmar a ação. Quando o gesto atinge o progresso necessário,
+/// a view executa o fechamento recebido em `onCapture`.
 struct CaptureView: View {
 
+    /// Ação chamada quando a captura é concluída.
     let onCapture: () -> Void
 
+    /// Posição vertical da Poké Ball durante a animação.
     @State private var offsetY: CGFloat = 120
+
+    /// Escala visual da Poké Ball.
     @State private var scale: CGFloat = 1.9
+
+    /// Progresso do gesto de captura.
     @State private var progress: CGFloat = 0
+
+    /// Indica se a captura já foi confirmada.
     @State private var captured = false
+
+    /// Indica se a animação de sugestão ainda deve ser exibida.
     @State private var isHinting = true
 
+    /// Estado auxiliar para o ciclo de sugestão visual.
     @State private var animateHint = false
 
+    /// URL pública da imagem da Poké Ball usada na animação.
     private let pokeballURL =
         URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png")
 
+    /// Conteúdo visual da experiência de captura.
     var body: some View {
 
         ZStack {
@@ -91,6 +108,7 @@ struct CaptureView: View {
     }
 
 
+    /// Inicia a animação que sugere ao usuário o movimento de arrastar.
     private func startHintLoop() {
 
         guard isHinting else { return }
@@ -100,6 +118,7 @@ struct CaptureView: View {
         runHintStep()
     }
 
+    /// Executa uma etapa do ciclo de sugestão visual da Poké Ball.
     private func runHintStep() {
 
         guard isHinting else { return }

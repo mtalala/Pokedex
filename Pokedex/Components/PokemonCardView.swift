@@ -7,10 +7,19 @@
 
 import SwiftUI
 
+/// Cartão visual usado na grade regional para apresentar um Pokémon de forma compacta.
+///
+/// O componente mostra o sprite, o nome e, quando necessário, uma versão temporária de carregamento.
+/// Ele ajuda a manter a listagem organizada e visualmente consistente.
 struct PokemonCardView: View {
 
+    /// Nome do Pokémon exibido no cartão.
     let pokemonName: String?
+
+    /// Identificador usado para buscar o sprite público do Pokémon.
     let index: Int?
+
+    /// Indica se o cartão deve mostrar o estado de carregamento.
     let isLoading: Bool
 
     var body: some View {

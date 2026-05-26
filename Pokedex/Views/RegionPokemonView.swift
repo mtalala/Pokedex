@@ -8,24 +8,39 @@
 import SwiftUI
 import SwiftData
 
+/// Tela principal para explorar Pokémon por região.
+///
+/// A view apresenta uma grade pesquisável, permite trocar a região exibida e indica visualmente
+/// quais Pokémon já foram capturados pelo usuário.
 struct RegionPokemonView: View {
 
+    /// Região usada para inicializar a tela.
     var region: Region
+
+    /// View model que carrega regiões e Pokémon.
     @StateObject private var vm = RegionPokemonViewModel()
+
+    /// Registros persistidos de Pokémon capturados.
     @Query private var captured: [CapturedPokemon]
 
+    /// Nome da região atualmente selecionada no menu.
     @State private var selectedRegionName: String
+
+    /// Texto usado para filtrar Pokémon pelo nome.
     @State private var searchText = ""
 
+    /// Cria a regional view a partir de uma região inicial.
     init(region: Region) {
         self.region = region
         _selectedRegionName = State(initialValue: region.name)
     }
 
+    /// Conjunto de identificadores capturados, usado para atualizar a aparência dos cartões.
     private var capturedSet: Set<Int> {
         Set(captured.map { $0.id })
     }
 
+    /// Conteúdo visual da listagem regional.
     var body: some View {
             
         ScrollView {
