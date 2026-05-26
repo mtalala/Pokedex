@@ -43,10 +43,6 @@ struct CaptureView: View {
     /// Estado auxiliar para o ciclo de sugestão visual.
     @State private var animateHint = false
 
-    /// URL pública da imagem da Poké Ball usada na animação.
-    private let pokeballURL =
-        URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png")
-
     /// Conteúdo visual da experiência de captura.
     var body: some View {
 
@@ -71,18 +67,17 @@ struct CaptureView: View {
                 .frame(width: 220, height: 220)
                 .accessibilityLabel(pokemonName.capitalized)
 
-                AsyncImage(url: pokeballURL) { image in
-                    image.resizable().scaledToFit()
-                } placeholder: {
-                    ProgressView()
-                }
-                .frame(width: 120, height: 120)
-                .scaleEffect(scale - progress * 0.9)
-                .offset(y: offsetY)
-                .onAppear {
-                    startHintLoop()
-                }
-                .gesture(
+                Image("pokeball")
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .scaleEffect(scale - progress * 0.9)
+                    .offset(y: offsetY)
+                    .onAppear {
+                        startHintLoop()
+                    }
+                    .gesture(
                     DragGesture()
                         .onChanged { value in
 
