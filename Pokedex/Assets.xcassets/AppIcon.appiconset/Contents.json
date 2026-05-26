@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "PokeIcon.png",
+      "filename" : "PokeballIconApp.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "PokeIcon 1.png",
+      "filename" : "PokeballIconApp 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "PokeIcon 2.png",
+      "filename" : "PokeballIconApp 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
