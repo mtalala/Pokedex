@@ -13,6 +13,15 @@ import SwiftUI
 /// a view executa o fechamento recebido em `onCapture`.
 struct CaptureView: View {
 
+    /// Nome do Pokémon prestes a ser capturado.
+    let pokemonName: String
+
+    /// URL da sprite do Pokémon prestes a ser capturado.
+    let pokemonSpriteURL: URL?
+
+    /// Ação chamada quando o usuário volta para a tela de detalhes.
+    let onBack: () -> Void
+
     /// Ação chamada quando a captura é concluída.
     let onCapture: () -> Void
 
@@ -41,11 +50,26 @@ struct CaptureView: View {
     /// Conteúdo visual da experiência de captura.
     var body: some View {
 
-        ZStack {
-            
-
-            VStack {
+        NavigationStack {
+            VStack(spacing: 24) {
                 Spacer()
+
+                AsyncImage(url: pokemonSpriteURL) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                    case .success(let image):
+                        image.resizable().interpolation(.none).scaledToFit()
+                    case .failure:
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: 72))
+                            .foregroundStyle(.secondary)
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(width: 220, height: 220)
+                .accessibilityLabel(pokemonName.capitalized)
 
                 AsyncImage(url: pokeballURL) { image in
                     image.resizable().scaledToFit()
@@ -103,6 +127,16 @@ struct CaptureView: View {
                 )
 
                 Spacer()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        onBack()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                    .accessibilityLabel("Voltar")
+                }
             }
         }
     }

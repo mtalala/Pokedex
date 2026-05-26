@@ -33,7 +33,7 @@ struct PokemonCardView: View {
                     AsyncImage(
                         url: URL(
                             string:
-                                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(index).png"
+                                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/\(index).png"
                         )
                     ) { image in
                         image

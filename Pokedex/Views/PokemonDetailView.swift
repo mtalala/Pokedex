@@ -54,14 +54,22 @@ struct PokemonDetailView: View {
             await vm.load(name: pokemonName)
         }
         .fullScreenCover(isPresented: $showCapture) {
-            CaptureView {
-                if let detail = pending {
-                    capture(detail)
-                }
+            CaptureView(
+                pokemonName: pending?.name ?? pokemonName,
+                pokemonSpriteURL: URL(string: pending.map(captureSpriteURL(for:)) ?? ""),
+                onBack: {
+                    pending = nil
+                    showCapture = false
+                },
+                onCapture: {
+                    if let detail = pending {
+                        capture(detail)
+                    }
 
-                pending = nil
-                showCapture = false
-            }
+                    pending = nil
+                    showCapture = false
+                }
+            )
         }
     }
 
@@ -135,6 +143,11 @@ struct PokemonDetailView: View {
         }
 
         return artwork?.frontDefault ?? ""
+    }
+
+    /// Escolhe a sprite frontal para a tela de captura.
+    private func captureSpriteURL(for detail: PokemonDetail) -> String {
+        detail.sprites?.front_default ?? detail.sprites?.other?.officialArtwork?.frontDefault ?? ""
     }
 
     /// Retorna uma cor representativa para cada tipo elemental.
