@@ -48,35 +48,153 @@ final class PokeAPIService {
         }
 
         let response: RegionResponse = try await request(url)
-        return response.results
-    }
 
+        let allowed: Set<String> = [
+            "kanto",
+            "johto",
+            "hoenn",
+            "sinnoh",
+            "unova",
+            "kalos",
+            "alola",
+            "galar",
+            "paldea"
+        ]
+
+        return response.results.filter {
+            allowed.contains($0.name.lowercased())
+        }
+    }
+    
     private func pokedexName(for region: String) -> String {
         switch region.lowercased() {
-        case "kanto": return "kanto"
-        case "johto": return "original-johto"
-        case "hoenn": return "hoenn"
-        case "sinnoh": return "original-sinnoh"
-        case "unova": return "original-unova"
-        case "kalos": return "kalos"
-        case "alola": return "original-alola"
-        case "galar": return "galar"
-        default: return "kanto"
+
+        case "kanto":
+            return "kanto"
+
+        case "johto":
+            return "original-johto"
+
+        case "hoenn":
+            return "hoenn"
+
+        case "sinnoh":
+            return "original-sinnoh"
+
+        case "unova":
+            return "original-unova"
+
+        case "kalos":
+            return "kalos"
+
+        case "alola":
+            return "original-alola"
+
+        case "galar":
+            return "galar"
+
+        case "paldea":
+            return "paldea"
+
+        default:
+            return "kanto"
+        }
+    }
+
+    private func fetchDex(_ name: String) async throws -> PokedexResponse {
+        guard let url = URL(string: "\(baseURL)/pokedex/\(name)") else {
+            throw PokeAPIError.invalidURL
+        }
+        return try await request(url)
+    }
+
+    private func extractId(from url: String) -> Int? {
+        let parts = url.split(separator: "/").compactMap { Int($0) }
+        return parts.last
+    }
+
+    private func generationRange(for region: String) -> ClosedRange<Int>? {
+        switch region.lowercased() {
+
+        case "kanto":
+            return 1...151
+
+        case "johto":
+            return 152...251
+
+        case "hoenn":
+            return 252...386
+
+        case "sinnoh":
+            return 387...493
+
+        case "unova":
+            return 494...649
+
+        case "kalos":
+            return 650...721
+
+        case "alola":
+            return 722...809
+
+        case "galar":
+            return 810...905
+
+        case "paldea":
+            return 906...1025
+
+        default:
+            return nil
         }
     }
 
     func fetchPokemonsByRegion(regionName: String) async throws -> [PokemonEntry] {
 
-        let pokedex = pokedexName(for: regionName)
+        let region = regionName.lowercased()
 
-        guard let url = URL(string: "\(baseURL)/pokedex/\(pokedex)") else {
-            throw PokeAPIError.invalidURL
+        if region == "kalos" {
+
+            async let central: PokedexResponse = fetchDex("kalos-central")
+            async let coastal: PokedexResponse = fetchDex("kalos-coastal")
+            async let mountain: PokedexResponse = fetchDex("kalos-mountain")
+
+            let results = try await (central, coastal, mountain)
+
+            let combined =
+                results.0.pokemon_entries +
+                results.1.pokemon_entries +
+                results.2.pokemon_entries
+
+            let unique = Dictionary(
+                grouping: combined,
+                by: { $0.pokemon_species.name }
+            )
+            .compactMap { $0.value.first }
+
+            return applyCleanMode(region: region, entries: unique)
+                .sorted { $0.entry_number < $1.entry_number }
         }
 
-        let response: PokedexResponse = try await request(url)
+        let pokedex = pokedexName(for: region)
+        let response: PokedexResponse = try await fetchDex(pokedex)
 
-        return response.pokemon_entries
+        return applyCleanMode(region: region, entries: response.pokemon_entries)
             .sorted { $0.entry_number < $1.entry_number }
+    }
+
+    private func applyCleanMode(region: String, entries: [PokemonEntry]) -> [PokemonEntry] {
+
+        guard let range = generationRange(for: region) else {
+            return entries
+        }
+
+        return entries.compactMap { entry in
+            guard let id = extractId(from: entry.pokemon_species.url) else {
+                return nil
+            }
+
+            return range.contains(id) ? entry : nil
+        }
     }
 
     func fetchPokemonDetail(id: Int) async throws -> PokemonDetail {

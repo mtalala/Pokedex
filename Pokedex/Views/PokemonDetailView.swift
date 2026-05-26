@@ -18,6 +18,7 @@ struct PokemonDetailView: View {
 
     @State private var showCapture = false
     @State private var pending: PokemonDetail?
+    @State private var showsShinySprite = false
 
     private var capturedSet: Set<Int> {
         Set(captured.map { $0.id })
@@ -55,13 +56,20 @@ struct PokemonDetailView: View {
         return VStack(spacing: 20) {
 
             AsyncImage(
-                url: URL(string: detail.sprites?.other?.officialArtwork?.frontDefault ?? "")
+                url: URL(string: spriteURL(for: detail))
             ) { image in
                 image.resizable().scaledToFit()
             } placeholder: {
                 ProgressView()
             }
             .frame(width: 200, height: 200)
+
+            Button {
+                showsShinySprite.toggle()
+            } label: {
+                Label(showsShinySprite ? "Normal" : "Shiny", systemImage: showsShinySprite ? "circle" : "sparkles")
+            }
+            .buttonStyle(.bordered)
 
             Text("#\(detail.id)")
                 .foregroundColor(.secondary)
@@ -94,6 +102,16 @@ struct PokemonDetailView: View {
     private var skeletonContent: some View {
         ProgressView()
             .padding()
+    }
+
+    private func spriteURL(for detail: PokemonDetail) -> String {
+        let artwork = detail.sprites?.other?.officialArtwork
+
+        if showsShinySprite {
+            return artwork?.frontShiny ?? artwork?.frontDefault ?? ""
+        }
+
+        return artwork?.frontDefault ?? ""
     }
 
     private func capture(_ detail: PokemonDetail) {
