@@ -93,11 +93,15 @@ struct PokemonDetailView: View {
 
             HStack {
                 ForEach(detail.types, id: \.slot) { t in
+                    let typeColor = pokemonTypeColor(for: t.type.name)
+
                     Text(t.type.name.capitalized)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(.gray.opacity(0.2))
-                        .cornerRadius(10)
+                        .background(typeColor)
+                        .clipShape(Capsule())
                 }
             }
 
@@ -131,6 +135,31 @@ struct PokemonDetailView: View {
         }
 
         return artwork?.frontDefault ?? ""
+    }
+
+    /// Retorna uma cor representativa para cada tipo elemental.
+    private func pokemonTypeColor(for type: String) -> Color {
+        switch type.lowercased() {
+        case "normal": .brown.opacity(0.65)
+        case "fire": .orange
+        case "water": .blue
+        case "electric": .yellow
+        case "grass": .green
+        case "ice": .cyan
+        case "fighting": .red
+        case "poison": .purple
+        case "ground": .brown
+        case "flying": .indigo.opacity(0.75)
+        case "psychic": .pink
+        case "bug": .mint
+        case "rock": .gray
+        case "ghost": .indigo
+        case "dragon": .teal
+        case "dark": .black.opacity(0.75)
+        case "steel": .secondary
+        case "fairy": .pink.opacity(0.75)
+        default: .gray
+        }
     }
 
     /// Salva o Pokémon capturado no armazenamento local com SwiftData.
