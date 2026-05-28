@@ -114,7 +114,7 @@ struct PokemonDetailView: View {
                 }
             }
 
-            VStack(spacing: 12) {
+            HStack(spacing: 12) {
                 metricCard(
                     title: "Height",
                     value: "\(detail.height)",
@@ -129,12 +129,13 @@ struct PokemonDetailView: View {
             }
 
             Button(isCaptured ? "Captured" : "Capture") {
+                guard !isCaptured else { return }
+
                 pending = detail
                 showCapture = true
             }
-            .buttonStyle(.glass(.regular.tint(.blue)))
-            .foregroundStyle(.white)
-            .disabled(isCaptured)
+            .buttonStyle(isCaptured ? .glass(.regular) : .glass(.regular.tint(.blue)))
+            .foregroundStyle(isCaptured ? Color.gray.opacity(0.75) : .white)
         }
         .padding()
     }
