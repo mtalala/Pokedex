@@ -94,7 +94,8 @@ struct PokemonDetailView: View {
             } label: {
                 Label(showsShinySprite ? "Normal" : "Shiny", systemImage: showsShinySprite ? "circle" : "sparkles")
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.glass(.regular.tint(.blue)))
+            .foregroundStyle(.white)
 
             Text("#\(detail.id)")
                 .foregroundColor(.secondary)
@@ -113,16 +114,26 @@ struct PokemonDetailView: View {
                 }
             }
 
-            VStack(alignment: .leading) {
-                Text("Height: \(detail.height)")
-                Text("Weight: \(detail.weight)")
+            VStack(spacing: 12) {
+                metricCard(
+                    title: "Height",
+                    value: "\(detail.height)",
+                    systemImage: "ruler"
+                )
+
+                metricCard(
+                    title: "Weight",
+                    value: "\(detail.weight)",
+                    systemImage: "scalemass"
+                )
             }
 
             Button(isCaptured ? "Captured" : "Capture") {
                 pending = detail
                 showCapture = true
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.glass(.regular.tint(.blue)))
+            .foregroundStyle(.white)
             .disabled(isCaptured)
         }
         .padding()
@@ -132,6 +143,33 @@ struct PokemonDetailView: View {
     private var skeletonContent: some View {
         ProgressView()
             .padding()
+    }
+
+    /// Cria um cartão visual para exibir métricas do Pokémon.
+    private func metricCard(title: String, value: String, systemImage: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.blue)
+
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+            }
+
+            Text(value)
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(.blue.opacity(0.18), lineWidth: 1)
+        )
     }
 
     /// Escolhe a URL da imagem normal ou shiny de acordo com o estado da view.
