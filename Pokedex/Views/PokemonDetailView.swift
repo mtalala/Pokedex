@@ -25,11 +25,8 @@ struct PokemonDetailView: View {
     /// Pokémon capturados persistidos localmente.
     @Query private var captured: [CapturedPokemon]
 
-    /// Controla a apresentação da tela de captura.
-    @State private var showCapture = false
-
     /// Pokémon aguardando confirmação de captura.
-    @State private var pending: PokemonDetail?
+    @State private var pendingCapture: CaptureContext?
 
     /// Controla se a imagem exibida deve ser a versão shiny.
     @State private var showsShinySprite = false
@@ -53,21 +50,16 @@ struct PokemonDetailView: View {
         .task {
             await vm.load(name: pokemonName)
         }
-        .fullScreenCover(isPresented: $showCapture) {
+        .fullScreenCover(item: $pendingCapture) { captureContext in
             CaptureView(
-                pokemonName: pending?.name ?? pokemonName,
-                pokemonSpriteURL: URL(string: pending.map(captureSpriteURL(for:)) ?? ""),
+                pokemonName: captureContext.name,
+                pokemonSpriteURL: captureContext.spriteURL,
                 onBack: {
-                    pending = nil
-                    showCapture = false
+                    pendingCapture = nil
                 },
                 onCapture: {
-                    if let detail = pending {
-                        capture(detail)
-                    }
-
-                    pending = nil
-                    showCapture = false
+                    capture(captureContext.detail)
+                    pendingCapture = nil
                 }
             )
         }
@@ -128,16 +120,49 @@ struct PokemonDetailView: View {
                 )
             }
 
+            combatStatsSection(detail.stats)
             Button(isCaptured ? "Captured" : "Capture") {
                 guard !isCaptured else { return }
 
-                pending = detail
-                showCapture = true
+                pendingCapture = CaptureContext(
+                    id: detail.id,
+                    name: detail.name,
+                    spriteURL: captureSpriteURL(for: detail),
+                    detail: detail
+                )
             }
             .buttonStyle(isCaptured ? .glass(.regular) : .glass(.regular.tint(.blue)))
             .foregroundStyle(isCaptured ? Color.gray.opacity(0.75) : .white)
         }
         .padding()
+    }
+
+    /// Mostra os atributos de combate em cartões organizados em grade.
+    private func combatStatsSection(_ stats: [PokemonStatEntry]) -> some View {
+        let displayStats = stats.sorted { statOrder($0.stat.name) < statOrder($1.stat.name) }
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "flame.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.blue)
+
+                Text("Combat Stats")
+                    .font(.headline.weight(.bold))
+            }
+
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
+                ],
+                spacing: 12
+            ) {
+                ForEach(Array(displayStats.enumerated()), id: \.offset) { _, stat in
+                    combatStatCard(stat)
+                }
+            }
+        }
     }
 
     /// Conteúdo temporário apresentado enquanto os detalhes estão carregando.
@@ -173,6 +198,68 @@ struct PokemonDetailView: View {
         )
     }
 
+    /// Cria um cartão para um atributo de combate individual.
+    private func combatStatCard(_ stat: PokemonStatEntry) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(formattedStatName(stat.stat.name))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+
+            Text("\(stat.baseStat)")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.primary)
+
+            if stat.effort > 0 {
+                Text("EV +\(stat.effort)")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 86, alignment: .leading)
+        .padding(12)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.blue.opacity(0.12), lineWidth: 1)
+        )
+    }
+
+    /// Deixa os nomes de stats mais legíveis para exibição.
+    private func formattedStatName(_ name: String) -> String {
+        switch name.lowercased() {
+        case "hp": return "HP"
+        case "attack": return "Attack"
+        case "defense": return "Defense"
+        case "special-attack": return "Sp. Atk"
+        case "special-defense": return "Sp. Def"
+        case "speed": return "Speed"
+        default:
+            return name.replacingOccurrences(of: "-", with: " ").capitalized
+        }
+    }
+
+    /// Mantém a ordem clássica dos atributos base da PokéAPI.
+    private func statOrder(_ name: String) -> Int {
+        switch name.lowercased() {
+        case "hp": return 0
+        case "attack": return 1
+        case "defense": return 2
+        case "special-attack": return 3
+        case "special-defense": return 4
+        case "speed": return 5
+        default: return 99
+        }
+    }
+
+    /// Dados estáveis usados para apresentar a experiência de captura.
+    private struct CaptureContext: Identifiable {
+        let id: Int
+        let name: String
+        let spriteURL: URL?
+        let detail: PokemonDetail
+    }
+
     /// Escolhe a URL da imagem normal ou shiny de acordo com o estado da view.
     private func spriteURL(for detail: PokemonDetail) -> String {
         let artwork = detail.sprites?.other?.officialArtwork
@@ -185,8 +272,10 @@ struct PokemonDetailView: View {
     }
 
     /// Escolhe a arte oficial para a tela de captura.
-    private func captureSpriteURL(for detail: PokemonDetail) -> String {
-        detail.sprites?.other?.officialArtwork?.frontDefault ?? detail.sprites?.front_default ?? ""
+    private func captureSpriteURL(for detail: PokemonDetail) -> URL? {
+        let urlString = detail.sprites?.other?.officialArtwork?.frontDefault ?? detail.sprites?.front_default
+        guard let urlString, !urlString.isEmpty else { return nil }
+        return URL(string: urlString)
     }
 
     /// Retorna uma cor representativa para cada tipo elemental.
