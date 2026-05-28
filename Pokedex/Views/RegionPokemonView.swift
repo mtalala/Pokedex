@@ -63,7 +63,9 @@ struct RegionPokemonView: View {
                             PokemonCardView(
                                 pokemonName: nil,
                                 index: nil,
-                                isLoading: true
+                                isLoading: true,
+                                spriteOpacity: 1.0,
+                                labelOpacity: 1.0
                             )
 
                         } else {
@@ -77,9 +79,10 @@ struct RegionPokemonView: View {
                                 PokemonCardView(
                                     pokemonName: name,
                                     index: id,
-                                    isLoading: false
+                                    isLoading: false,
+                                    spriteOpacity: isCaptured ? 1.0 : 0.3,
+                                    labelOpacity: isCaptured ? 1.0 : 0.7
                                 )
-                                .opacity(isCaptured ? 1.0 : 0.3)
                             }
                         }
                     }

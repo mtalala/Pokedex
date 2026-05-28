@@ -22,6 +22,15 @@ struct PokemonCardView: View {
     /// Indica se o cartão deve mostrar o estado de carregamento.
     let isLoading: Bool
 
+    /// Opacidade aplicada ao sprite e ao estado visual superior.
+    let spriteOpacity: Double
+
+    /// Opacidade aplicada à etiqueta do nome.
+    let labelOpacity: Double
+
+    /// Tipos carregados para o Pokémon exibido.
+    @State private var types: [PokemonTypeEntry] = []
+
     var body: some View {
         VStack(spacing: 8) {
 
@@ -45,15 +54,73 @@ struct PokemonCardView: View {
                     .frame(width: 80, height: 80)
                 }
             }
+            .opacity(spriteOpacity)
+            .task(id: index) {
+                guard let index, !isLoading else {
+                    types = []
+                    return
+                }
+
+                do {
+                    let detail = try await PokeAPIService.shared.fetchPokemonDetail(id: index)
+                    types = detail.types
+                } catch {
+                    types = []
+                }
+            }
 
             if isLoading {
                 SkeletonRectangle()
                     .frame(width: 60, height: 10)
             } else if let pokemonName {
+                if !types.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(types, id: \.slot) { type in
+                            Circle()
+                                .fill(pokemonTypeColor(for: type.type.name))
+                                .frame(width: 8, height: 8)
+                        }
+                    }
+                }
+
                 Text(pokemonName.capitalized)
                     .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(Color.accentColor)
+                    )
+                    .opacity(labelOpacity)
                     .lineLimit(1)
             }
+        }
+    }
+
+    /// Retorna uma cor representativa para cada tipo elemental.
+    private func pokemonTypeColor(for type: String) -> Color {
+        switch type.lowercased() {
+        case "normal": .brown.opacity(0.65)
+        case "fire": .orange
+        case "water": .blue
+        case "electric": .yellow
+        case "grass": .green
+        case "ice": .cyan
+        case "fighting": .red
+        case "poison": .purple
+        case "ground": .brown
+        case "flying": .indigo.opacity(0.75)
+        case "psychic": .pink
+        case "bug": .mint
+        case "rock": .gray
+        case "ghost": .indigo
+        case "dragon": .teal
+        case "dark": .black.opacity(0.75)
+        case "steel": .secondary
+        case "fairy": .pink.opacity(0.75)
+        default: .gray
         }
     }
 }

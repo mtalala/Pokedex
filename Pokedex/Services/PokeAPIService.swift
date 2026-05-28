@@ -40,7 +40,9 @@ final class PokeAPIService {
 
     /// Executa uma requisição e decodifica a resposta para o tipo solicitado.
     private func request<T: Decodable>(_ url: URL) async throws -> T {
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
+       
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let http = response as? HTTPURLResponse,
               (200...299).contains(http.statusCode) else {
