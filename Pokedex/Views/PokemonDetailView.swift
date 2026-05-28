@@ -191,11 +191,7 @@ struct PokemonDetailView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(.blue.opacity(0.18), lineWidth: 1)
-        )
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     /// Cria um cartão para um atributo de combate individual.
@@ -218,11 +214,7 @@ struct PokemonDetailView: View {
         }
         .frame(maxWidth: .infinity, minHeight: 86, alignment: .leading)
         .padding(12)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(.blue.opacity(0.12), lineWidth: 1)
-        )
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     /// Deixa os nomes de stats mais legíveis para exibição.
